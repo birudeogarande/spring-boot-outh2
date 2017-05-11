@@ -3,11 +3,14 @@ package com.appsay.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 @Configuration
@@ -19,6 +22,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	/**
 	 * Constructor disables the default security settings
 	 */
+
+
+	/*static class CustomAuthenticationManager implements AuthenticationManager {
+		public Authentication authenticate(Authentication authentication)
+				throws AuthenticationException {
+
+					throw new BadCredentialsException("This always fails");
+		}
+	}*/
+
 	public WebSecurityConfig() {
 		super(false);
 	}
@@ -32,12 +45,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public void configure(HttpSecurity http) throws Exception {
 		http.antMatcher("/appsay/**")
 				.authorizeRequests().anyRequest().authenticated();
-	}
-
-	@Bean
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
 	}
 
 }

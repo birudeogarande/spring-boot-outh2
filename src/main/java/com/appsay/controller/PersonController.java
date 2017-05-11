@@ -8,6 +8,8 @@ import com.appsay.errorhandling.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.appsay.model.Party;
@@ -26,7 +28,7 @@ public class PersonController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Collection<Person>> getPeople() throws Exception {
 		Collection<Person>  personCollection=personRepo.findAll();
-		personCollection = null;
+
 		if (personCollection!=null){
 			return new ResponseEntity<>(personCollection, HttpStatus.OK);
 		}
@@ -39,6 +41,8 @@ public class PersonController {
 	public ResponseEntity<Person> getPerson(@PathVariable long id) throws AppException {
 		Person person = personRepo.findOne(id);
 
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
 		if (person != null) {
 			return new ResponseEntity<Person>(person,HttpStatus.OK);
 		} else {
@@ -55,7 +59,7 @@ public class PersonController {
 		return responseEntity;
 	}
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> addPerson(@RequestBody Person person) {
+	public ResponseEntity<Person> addPerson(@RequestBody Person person) {
 		return new ResponseEntity<>(personRepo.save(person), HttpStatus.CREATED);
 	}
 

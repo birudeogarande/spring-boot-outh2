@@ -24,52 +24,54 @@ import javax.sql.DataSource;
 @EnableAuthorizationServer
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
-	@Bean
-	public TokenStore tokenStore() {
-		// TODO: uncomment me
-		// return new InMemoryTokenStore();
-		return new JdbcTokenStore(dataSource);
-	}
-
-	@Bean
-	protected AuthorizationCodeServices authorizationCodeServices() {
-		return new JdbcAuthorizationCodeServices(dataSource);
-	}
-	@Autowired
-	@Qualifier("userDetailsService")
-	private UserDetailsService userDetailsService;
+    @Autowired
+    DataSource dataSource;
+    @Autowired
+    @Qualifier("userDetailsService")
+    private UserDetailsService userDetailsService;
 
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
-	@Autowired
-	DataSource dataSource;
-	@Value("${appsay.oauth.tokenTimeout:3600}")
-	private int expiration;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Value("${appsay.oauth.tokenTimeout:3600}")
+    private int expiration;
 
-	// password encryptor
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public TokenStore tokenStore() {
+        // TODO: uncomment me
+        // return new InMemoryTokenStore();
+        return new JdbcTokenStore(dataSource);
+    }
+
+    @Bean
+    protected AuthorizationCodeServices authorizationCodeServices() {
+        return new JdbcAuthorizationCodeServices(dataSource);
+    }
+
+    // password encryptor
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 
-	@Override
-	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-		clients.inMemory().withClient("appsay").secret("secret").accessTokenValiditySeconds(expiration)
-				.scopes("read", "write").authorizedGrantTypes("password", "refresh_token").resourceIds("resource");
-	//	clients.jdbc(dataSource);
-	}
-	@Override
-	public void configure(AuthorizationServerEndpointsConfigurer endpoints)
-			throws Exception {
-		endpoints
-				.userDetailsService(userDetailsService)
-				.authorizationCodeServices(authorizationCodeServices())
-				.authenticationManager(this.authenticationManager)
-				.tokenStore(tokenStore())
-				.approvalStoreDisabled();
-	}
+    @Override
+    public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
+        clients.inMemory().withClient("appsay").secret("secret").accessTokenValiditySeconds(expiration)
+                .scopes("read", "write").authorizedGrantTypes("password", "refresh_token").resourceIds("resource");
+        //	clients.jdbc(dataSource);
+    }
+
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints)
+            throws Exception {
+        endpoints
+                .userDetailsService(userDetailsService)
+                .authorizationCodeServices(authorizationCodeServices())
+                .authenticationManager(this.authenticationManager)
+                .tokenStore(tokenStore())
+                .approvalStoreDisabled();
+    }
 
 
 }
